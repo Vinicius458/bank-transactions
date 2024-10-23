@@ -1,0 +1,5 @@
+node-api/node_modules
+node-api/dist
+node-api/coverage
+.vscode
+volume
