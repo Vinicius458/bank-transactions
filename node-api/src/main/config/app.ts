@@ -4,7 +4,7 @@ import setupSwagger from "@/main/config/swagger";
 
 import express, { Express } from "express";
 
-export const setupApp = async (): Promise<Express> => {
+export const setupApp = (): Express => {
   const app = express();
   setupSwagger(app);
   setupMiddlewares(app);
