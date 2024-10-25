@@ -19,7 +19,11 @@ describe("TransferUseCase", () => {
       this: Account,
       amount: number
     ) {
-      this.balance -= amount;
+      if (this.balance >= amount) {
+        this.balance -= amount;
+      } else {
+        throw new Error("Saldo insuficiente");
+      }
     })),
       (account.credit = jest.fn().mockImplementation(function (
         this: Account,
@@ -27,7 +31,6 @@ describe("TransferUseCase", () => {
       ) {
         this.balance += amount;
       })),
-      (account.credit = jest.fn()),
       (account.incrementVersion = jest.fn()),
       (account.getVersion = jest.fn().mockReturnValue(1));
     return account;
@@ -122,5 +125,92 @@ describe("TransferUseCase", () => {
         amount: 100,
       })
     ).rejects.toThrow("Erro ao atualizar as contas");
+  });
+
+  it("Should perform simultaneous transfers while maintaining data consistency", async () => {
+    const { sut, accountRepo } = makeSut();
+    const sourceAccount = makeFakeAccount(1, 1000);
+    const targetAccount = makeFakeAccount(2, 500);
+    accountRepo.findById.mockImplementation(async (id) => {
+      return id === 1 ? sourceAccount : targetAccount;
+    });
+    accountRepo.updateAccount.mockResolvedValue(true);
+
+    const transferAmount = 100;
+    const transferPromises = Array.from({ length: 5 }, () =>
+      sut.execute({
+        sourceAccountId: 1,
+        targetAccountId: 2,
+        amount: transferAmount,
+      })
+    );
+
+    await Promise.all(transferPromises);
+
+    expect(sourceAccount.debit).toHaveBeenCalledTimes(5);
+    expect(targetAccount.credit).toHaveBeenCalledTimes(5);
+
+    expect(sourceAccount.balance).toBe(1000 - transferAmount * 5);
+    expect(targetAccount.balance).toBe(500 + transferAmount * 5);
+  });
+
+  it("should throw error on simultaneous transfers with insufficient balance", async () => {
+    const { sut, accountRepo } = makeSut();
+    const sourceAccount = makeFakeAccount(1, 200);
+    const targetAccount = makeFakeAccount(2, 500);
+
+    accountRepo.findById.mockImplementation(async (id) => {
+      return id === 1 ? sourceAccount : targetAccount;
+    });
+    accountRepo.updateAccount.mockResolvedValue(true);
+
+    const transferPromises = Array.from({ length: 3 }, () =>
+      sut.execute({
+        sourceAccountId: 1,
+        targetAccountId: 2,
+        amount: 100,
+      })
+    );
+
+    await expect(Promise.all(transferPromises)).rejects.toThrow(
+      "Saldo insuficiente"
+    );
+    expect(sourceAccount.debit).toHaveBeenCalledTimes(3);
+    expect(targetAccount.credit).toHaveBeenCalledTimes(2);
+  });
+
+  it("Should ensure data integrity when detecting update conflict", async () => {
+    const { sut, accountRepo } = makeSut();
+    const sourceAccount = makeFakeAccount(1, 1000);
+    const targetAccount = makeFakeAccount(2, 500);
+
+    accountRepo.findById.mockImplementation(async (id) => {
+      return id === 1 ? sourceAccount : targetAccount;
+    });
+    accountRepo.updateAccount.mockImplementation(async (account) => {
+      if (account.getVersion() !== account.getVersion()) {
+        throw new Error("Conflito de versão detectado");
+      }
+      account.incrementVersion();
+      return true;
+    });
+
+    const transferPromises = Array.from({ length: 10 }, () =>
+      sut.execute({
+        sourceAccountId: 1,
+        targetAccountId: 2,
+        amount: 50,
+      })
+    );
+
+    try {
+      await Promise.all(transferPromises);
+    } catch (error: any) {
+      expect(error.message).toBe("Conflito de versão detectado");
+    }
+
+    expect(accountRepo.updateAccount).toHaveBeenCalled();
+    expect(sourceAccount.balance).toBeLessThanOrEqual(1000);
+    expect(targetAccount.balance).toBeGreaterThanOrEqual(500);
   });
 });
