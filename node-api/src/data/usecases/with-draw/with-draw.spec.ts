@@ -37,13 +37,13 @@ describe("WithdrawUseCase", () => {
     sut = new WithdrawUseCase(accountRepo, transactionRepo);
   });
 
-  it("Deve lançar erro se o valor do saque for zero ou negativo", async () => {
+  it("Should throw error if withdrawal amount is zero or negative", async () => {
     const promise = sut.execute({ accountId: 123, amount: -100 });
 
     await expect(promise).rejects.toThrow("O valor de saque deve ser positivo");
   });
 
-  it("Deve lançar erro se a conta não for encontrada", async () => {
+  it("Should throw error if account not found", async () => {
     accountRepo.findById.mockResolvedValueOnce(null);
 
     const promise = sut.execute({
@@ -54,7 +54,7 @@ describe("WithdrawUseCase", () => {
     await expect(promise).rejects.toThrow("Conta não encontrada");
   });
 
-  it("Deve lançar erro se falhar ao atualizar a conta (concorrência)", async () => {
+  it("Should throw error if fails to update account (competition)", async () => {
     const fakeAccount = makeFakeAccount(200);
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(false);
@@ -66,7 +66,7 @@ describe("WithdrawUseCase", () => {
     );
   });
 
-  it("Deve debitar o saldo da conta corretamente em um saque bem-sucedido", async () => {
+  it("Should debit the account balance correctly on a successful withdrawal", async () => {
     const fakeAccount = makeFakeAccount(200);
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(true);
@@ -77,7 +77,7 @@ describe("WithdrawUseCase", () => {
     expect(fakeAccount.balance).toBe(100);
   });
 
-  it("Deve salvar a transação após um saque bem-sucedido", async () => {
+  it("Should save the transaction after a successful withdrawal", async () => {
     const fakeAccount = makeFakeAccount(200);
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(true);
