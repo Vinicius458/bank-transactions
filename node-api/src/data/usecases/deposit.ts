@@ -1,8 +1,12 @@
 import { Deposit } from "@/domain/usecases";
-import { AccountRepository } from "@/data/protocols/db";
+import { AccountRepository, TransactionRepository } from "@/data/protocols/db";
+import { Transaction, TransactionType } from "@/domain/entities";
 
 export class DepositUseCase implements Deposit {
-  constructor(private accountRepo: AccountRepository) {}
+  constructor(
+    private accountRepo: AccountRepository,
+    private transactionRepo: TransactionRepository
+  ) {}
 
   async execute(data: Deposit.Params): Promise<void> {
     const account = await this.accountRepo.findById(data.accountId);
@@ -10,10 +14,16 @@ export class DepositUseCase implements Deposit {
 
     account.credit(data.amount);
 
+    const transaction = new Transaction(
+      Date.now(),
+      data.accountId,
+      data.amount,
+      TransactionType.DEPOSIT
+    );
+
     const success = await this.accountRepo.updateAccount(account);
-    if (!success)
-      throw new Error(
-        "Erro ao atualizar a conta, possivelmente devido a um conflito de versão"
-      );
+    if (!success) throw new Error("Erro ao atualizar a conta");
+
+    await this.transactionRepo.saveTransaction(transaction);
   }
 }
