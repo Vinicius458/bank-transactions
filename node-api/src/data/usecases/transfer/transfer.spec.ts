@@ -1,5 +1,5 @@
 import { AccountRepository, TransactionRepository } from "@/data/protocols/db";
-import { TransactionType } from "@/domain/entities";
+import { Transaction, TransactionType } from "@/domain/entities";
 import { Account } from "@/domain/entities";
 import { TransferUseCase } from "./transfer";
 
@@ -35,6 +35,16 @@ describe("TransferUseCase", () => {
       (account.getVersion = jest.fn().mockReturnValue(1));
     return account;
   };
+
+  const makeFakeTransaction = (
+    id: number,
+    accountId: number,
+    amount: number,
+    type: TransactionType,
+    targetAccountId: number
+  ) => {
+    return new Transaction(id, accountId, amount, type, targetAccountId);
+  };
   const makeSut = () => {
     const accountRepo = makeAccountRepository();
     const transactionRepo = makeTransactionRepository();
@@ -50,7 +60,9 @@ describe("TransferUseCase", () => {
     accountRepo.findById.mockResolvedValueOnce(sourceAccount);
     accountRepo.findById.mockResolvedValueOnce(targetAccount);
     accountRepo.updateAccount.mockResolvedValue(true);
-    transactionRepo.saveTransaction.mockResolvedValue();
+    transactionRepo.saveTransaction.mockResolvedValue(
+      makeFakeTransaction(1, 1, 100, TransactionType.TRANSFER, 2)
+    );
 
     await sut.execute({
       sourceAccountId: 1,
