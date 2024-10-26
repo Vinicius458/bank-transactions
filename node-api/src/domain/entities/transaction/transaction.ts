@@ -11,15 +11,6 @@ export class Transaction {
     public readonly amount: number,
     public readonly type: TransactionType,
     public readonly targetAccountId?: number,
-    public readonly date: Date = new Date(),
-    private version: number = 1
+    public readonly createdAt: Date = new Date()
   ) {}
-
-  incrementVersion(): void {
-    this.version += 1;
-  }
-
-  getVersion(): number {
-    return this.version;
-  }
 }
