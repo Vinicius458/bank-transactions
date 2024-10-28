@@ -1,5 +1,5 @@
 import { Transaction } from "@/domain/entities";
 
 export interface TransactionRepository {
-  saveTransaction(transaction: Transaction): Promise<void>;
+  saveTransaction(transaction: Transaction): Promise<Transaction>;
 }

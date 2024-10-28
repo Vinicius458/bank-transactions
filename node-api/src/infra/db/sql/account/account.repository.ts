@@ -9,7 +9,8 @@ export class DBAccountRepository implements AccountRepository {
   constructor(private dataSource: DataSource) {
     this.ormRepository = this.dataSource.getRepository(AccountEntity);
   }
-  async findById(id: number): Promise<Account | null> {
+  async findById(id: string): Promise<Account | null> {
+    const account = await this.ormRepository.find();
     const accountEntity = await this.ormRepository.findOne({ where: { id } });
     return accountEntity ? this.toDomain(accountEntity) : null;
   }
@@ -38,11 +39,12 @@ export class DBAccountRepository implements AccountRepository {
   }
 
   private toDomain(accountEntity: AccountEntity): Account {
-    return new Account(
-      accountEntity.id,
+    const account = new Account(
       Number(accountEntity.balance),
       accountEntity.version
     );
+    account.id = accountEntity.id;
+    return account;
   }
 
   private toEntity(account: Account): AccountEntity {

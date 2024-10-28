@@ -4,8 +4,8 @@ export interface Transfer {
 
 export namespace Transfer {
   export type Params = {
-    sourceAccountId: number;
-    targetAccountId: number;
+    accountId: string;
+    targetAccountId: string;
     amount: number;
   };
 }

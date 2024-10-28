@@ -6,6 +6,7 @@ import { WithdrawUseCase } from "./with-draw";
 const makeAccountRepository = (): jest.Mocked<AccountRepository> => ({
   findById: jest.fn(),
   updateAccount: jest.fn(),
+  saveAccount: jest.fn(),
 });
 
 const makeTransactionRepository = (): jest.Mocked<TransactionRepository> => ({
@@ -13,7 +14,8 @@ const makeTransactionRepository = (): jest.Mocked<TransactionRepository> => ({
 });
 
 const makeFakeAccount = (balance: number) => {
-  const account = new Account(1232, balance);
+  const account = new Account(balance);
+  account.id = "1232";
   (account.debit = jest.fn().mockImplementation(function (
     this: Account,
     amount: number
@@ -38,7 +40,7 @@ describe("WithdrawUseCase", () => {
   });
 
   it("Should throw error if withdrawal amount is zero or negative", async () => {
-    const promise = sut.execute({ accountId: 123, amount: -100 });
+    const promise = sut.execute({ accountId: "123", amount: -100 });
 
     await expect(promise).rejects.toThrow("O valor de saque deve ser positivo");
   });
@@ -47,7 +49,7 @@ describe("WithdrawUseCase", () => {
     accountRepo.findById.mockResolvedValueOnce(null);
 
     const promise = sut.execute({
-      accountId: 123,
+      accountId: "123",
       amount: 100,
     });
 
@@ -59,7 +61,7 @@ describe("WithdrawUseCase", () => {
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(false);
 
-    const promise = sut.execute({ accountId: 123, amount: 100 });
+    const promise = sut.execute({ accountId: "123", amount: 100 });
 
     await expect(promise).rejects.toThrow(
       "Erro ao atualizar a conta, possivelmente devido a um conflito de versão"
@@ -71,7 +73,7 @@ describe("WithdrawUseCase", () => {
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(true);
 
-    await sut.execute({ accountId: 123, amount: 100 });
+    await sut.execute({ accountId: "123", amount: 100 });
 
     expect(fakeAccount.debit).toHaveBeenCalledWith(100);
     expect(fakeAccount.balance).toBe(100);
@@ -82,7 +84,7 @@ describe("WithdrawUseCase", () => {
     accountRepo.findById.mockResolvedValueOnce(fakeAccount);
     accountRepo.updateAccount.mockResolvedValueOnce(true);
 
-    await sut.execute({ accountId: 123, amount: 100 });
+    await sut.execute({ accountId: "123", amount: 100 });
 
     expect(transactionRepo.saveTransaction).toHaveBeenCalledWith(
       expect.objectContaining({

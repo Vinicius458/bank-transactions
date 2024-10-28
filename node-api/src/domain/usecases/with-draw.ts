@@ -4,7 +4,7 @@ export interface WithDraw {
 
 export namespace WithDraw {
   export type Params = {
-    accountId: number;
+    accountId: string;
     amount: number;
   };
 }

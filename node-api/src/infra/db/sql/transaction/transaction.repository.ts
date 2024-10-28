@@ -29,13 +29,14 @@ export class DBTransactionRepository implements TransactionRepository {
   }
 
   private toDomain(transactionEntity: TransactionEntity): Transaction {
-    return new Transaction(
-      transactionEntity.id,
+    const transaction = new Transaction(
       transactionEntity.accountId,
       Number(transactionEntity.amount),
       transactionEntity.type as TransactionType,
       transactionEntity.targetAccountId,
       transactionEntity.createdAt
     );
+    transaction.id = transactionEntity.id;
+    return transaction;
   }
 }

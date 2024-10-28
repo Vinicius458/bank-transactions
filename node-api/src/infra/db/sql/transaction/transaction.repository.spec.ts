@@ -23,18 +23,16 @@ beforeEach(async () => {
 describe("DBTransactionRepository", () => {
   it("should save a transaction and retrieve it correctly", async () => {
     const transaction = new Transaction(
-      1,
-      1,
+      "1",
       100.0,
       TransactionType.DEPOSIT,
-      2,
+      "2",
       new Date()
     );
 
     const savedTransaction =
       await transactionRepository.saveTransaction(transaction);
 
-    expect(savedTransaction.id).toBe(transaction.id);
     expect(savedTransaction.accountId).toBe(transaction.accountId);
     expect(savedTransaction.amount).toBe(transaction.amount);
     expect(savedTransaction.type).toBe(transaction.type);

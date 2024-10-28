@@ -1,9 +1,13 @@
+import { v4 as uuid } from "uuid";
+
 export class Account {
+  public id: string;
   constructor(
-    public readonly id: number,
     public balance: number,
     private version: number = 1
-  ) {}
+  ) {
+    this.id = uuid();
+  }
 
   credit(amount: number): void {
     if (amount <= 0) throw new Error("O valor do depósito deve ser positivo");

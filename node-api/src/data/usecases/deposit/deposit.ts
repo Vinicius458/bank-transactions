@@ -15,7 +15,6 @@ export class DepositUseCase implements Deposit {
     account.credit(data.amount);
 
     const transaction = new Transaction(
-      Date.now(),
       data.accountId,
       data.amount,
       TransactionType.DEPOSIT

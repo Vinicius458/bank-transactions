@@ -21,7 +21,6 @@ export class WithdrawUseCase implements WithDraw {
     account.debit(data.amount);
 
     const transaction = new Transaction(
-      Date.now(),
       data.accountId,
       data.amount,
       TransactionType.WITHDRAW

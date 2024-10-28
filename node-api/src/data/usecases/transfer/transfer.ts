@@ -9,7 +9,7 @@ export class TransferUseCase implements Transfer {
   ) {}
 
   async execute(data: Transfer.Params): Promise<void> {
-    const sourceAccount = await this.accountRepo.findById(data.sourceAccountId);
+    const sourceAccount = await this.accountRepo.findById(data.accountId);
     if (!sourceAccount) throw new Error("Conta de origem não encontrada");
 
     const targetAccount = await this.accountRepo.findById(data.targetAccountId);
@@ -20,19 +20,17 @@ export class TransferUseCase implements Transfer {
     targetAccount.credit(data.amount);
 
     const sourceTransaction = new Transaction(
-      Date.now(),
-      data.sourceAccountId,
+      data.accountId,
       data.amount,
       TransactionType.WITHDRAW,
       data.targetAccountId
     );
 
     const targetTransaction = new Transaction(
-      Date.now(),
       data.targetAccountId,
       data.amount,
       TransactionType.DEPOSIT,
-      data.sourceAccountId
+      data.accountId
     );
 
     const successSource = await this.accountRepo.updateAccount(sourceAccount);

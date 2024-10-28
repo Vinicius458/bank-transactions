@@ -4,7 +4,7 @@ export interface Deposit {
 
 export namespace Deposit {
   export type Params = {
-    accountId: number;
+    accountId: string;
     amount: number;
   };
 }

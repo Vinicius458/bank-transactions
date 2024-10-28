@@ -1,20 +1,15 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from "typeorm";
+import { Entity, Column, CreateDateColumn, PrimaryColumn } from "typeorm";
 
 @Entity("transactions")
 export class Transaction {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn("uuid")
+  id: string;
 
   @Column()
-  accountId: number;
+  accountId: string;
 
   @Column({ nullable: true })
-  targetAccountId?: number;
+  targetAccountId?: string;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
   amount: number;

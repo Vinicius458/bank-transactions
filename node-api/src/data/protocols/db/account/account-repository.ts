@@ -1,6 +1,7 @@
 import { Account } from "@/domain/entities";
 
 export interface AccountRepository {
-  findById(accountId: number): Promise<Account | null>;
+  findById(accountId: string): Promise<Account | null>;
   updateAccount(account: Account): Promise<boolean>;
+  saveAccount(account: Account): Promise<Account>;
 }

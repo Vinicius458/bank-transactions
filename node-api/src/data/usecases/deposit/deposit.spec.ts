@@ -8,6 +8,7 @@ const makeAccountRepository = function (): jest.Mocked<AccountRepository> {
   return {
     findById: jest.fn(),
     updateAccount: jest.fn(),
+    saveAccount: jest.fn(),
   };
 };
 
@@ -31,17 +32,17 @@ describe("DepositUseCase", () => {
 
   it("should successfully deposit into an account", async () => {
     // Arrange
-    const account = new Account(1, 1000);
+    const account = new Account(1000);
     accountRepo.findById.mockResolvedValue(account);
     accountRepo.updateAccount.mockResolvedValue(true);
 
-    const depositData = { accountId: 1, amount: 200 };
+    const depositData = { accountId: account.id, amount: 200 };
 
     // Act
     await depositUseCase.execute(depositData);
 
     // Assert
-    expect(accountRepo.findById).toHaveBeenCalledWith(1);
+    expect(accountRepo.findById).toHaveBeenCalledWith(account.id);
     expect(accountRepo.updateAccount).toHaveBeenCalledWith(
       expect.objectContaining({
         balance: 1200,
@@ -58,32 +59,32 @@ describe("DepositUseCase", () => {
   it("should throw an error if the account does not exist", async () => {
     // Arrange
     accountRepo.findById.mockResolvedValue(null);
-    const depositData = { accountId: 1, amount: 200 };
+    const depositData = { accountId: "1", amount: 200 };
 
     // Act & Assert
     await expect(depositUseCase.execute(depositData)).rejects.toThrow(
       "Conta não encontrada"
     );
 
-    expect(accountRepo.findById).toHaveBeenCalledWith(1);
+    expect(accountRepo.findById).toHaveBeenCalledWith(depositData.accountId);
     expect(accountRepo.updateAccount).not.toHaveBeenCalled();
     expect(transactionRepo.saveTransaction).not.toHaveBeenCalled();
   });
 
   it("should throw an error if updating the account fails", async () => {
     // Arrange
-    const account = new Account(1, 1000);
+    const account = new Account(1000);
     accountRepo.findById.mockResolvedValue(account);
     accountRepo.updateAccount.mockResolvedValue(false);
 
-    const depositData = { accountId: 1, amount: 200 };
+    const depositData = { accountId: account.id, amount: 200 };
 
     // Act & Assert
     await expect(depositUseCase.execute(depositData)).rejects.toThrow(
       "Erro ao atualizar a conta"
     );
 
-    expect(accountRepo.findById).toHaveBeenCalledWith(1);
+    expect(accountRepo.findById).toHaveBeenCalledWith(depositData.accountId);
     expect(accountRepo.updateAccount).toHaveBeenCalledWith(
       expect.objectContaining({
         balance: 1200,
@@ -93,17 +94,17 @@ describe("DepositUseCase", () => {
   });
 
   it("should save the transaction after a successful deposit", async () => {
-    const account = new Account(1, 1000);
+    const account = new Account(1000);
     accountRepo.findById.mockResolvedValue(account);
     accountRepo.updateAccount.mockResolvedValue(true);
 
-    const depositData = { accountId: 1, amount: 200 };
+    const depositData = { accountId: account.id, amount: 200 };
 
     await depositUseCase.execute(depositData);
 
     expect(transactionRepo.saveTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
-        accountId: 1,
+        accountId: account.id,
         amount: 200,
         type: TransactionType.DEPOSIT,
       })

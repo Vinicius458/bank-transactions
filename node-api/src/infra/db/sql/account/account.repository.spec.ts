@@ -24,7 +24,7 @@ describe("AccountRepository Integration Tests", () => {
   });
 
   it("Should create a new account and save it in the database", async () => {
-    const account = new Account(1, 100.0);
+    const account = new Account(100.0);
     const savedAccount = await accountRepository.saveAccount(account);
     expect(savedAccount).toBeInstanceOf(Account);
     expect(savedAccount.balance).toBe(100.0);
@@ -35,7 +35,7 @@ describe("AccountRepository Integration Tests", () => {
   });
 
   it("Should update the balance of an existing account and maintain version consistency", async () => {
-    const account = new Account(2, 200.0);
+    const account = new Account(200.0);
     await accountRepository.saveAccount(account);
 
     account.credit(50.0);
@@ -50,17 +50,17 @@ describe("AccountRepository Integration Tests", () => {
       const secondUpdateSuccess =
         await accountRepository.updateAccount(updatedAccount);
       expect(secondUpdateSuccess).toBe(true);
-      const outdatedAccount = await accountRepository.findById(2);
+      const outdatedAccount = await accountRepository.findById(account.id);
       expect(outdatedAccount?.balance).toBe(200.0);
       expect(updatedAccount?.getVersion()).toBe(3);
     }
   });
 
   it("should throw an error when trying to update an account with an outdated version", async () => {
-    const account = new Account(3, 300.0);
+    const account = new Account(300.0);
     await accountRepository.saveAccount(account);
 
-    const outdatedAccount = await accountRepository.findById(3);
+    const outdatedAccount = await accountRepository.findById(account.id);
     if (outdatedAccount) {
       outdatedAccount.credit(50.0);
       await accountRepository.updateAccount(outdatedAccount);
