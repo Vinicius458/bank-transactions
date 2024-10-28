@@ -1,7 +1,5 @@
 import { Controller, HttpResponse, Validation } from "@/presentation/protocols";
-import { badRequest, serverError, noContent, ok } from "@/presentation/helpers";
-import { Deposit, Transfer, WithDraw } from "@/domain/usecases";
-import { DepositUseCase, ProcessTransaction } from "@/data/usecases";
+import { badRequest, serverError, ok } from "@/presentation/helpers";
 import { Transaction, TransactionType } from "@/domain/entities";
 import { TransactionQueueRepository } from "@/data/protocols/queue/transaction-queue-repository";
 

@@ -1,13 +1,14 @@
 export interface AddAccount {
-  add: (account: Account.Params) => Promise<Account.Result>;
+  execute: (account: AddAccount.Params) => Promise<AddAccount.Result>;
 }
 
-export namespace Account {
+export namespace AddAccount {
   export type Params = {
-    name: string;
-    email: string;
-    password: string;
+    accountId: string;
+    balance: number;
   };
 
-  export type Result = boolean;
+  export type Result = {
+    accountId: string;
+  };
 }

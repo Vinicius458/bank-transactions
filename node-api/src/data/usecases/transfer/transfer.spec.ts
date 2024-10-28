@@ -6,6 +6,7 @@ import { TransferUseCase } from "./transfer";
 describe("TransferUseCase", () => {
   const makeAccountRepository = (): jest.Mocked<AccountRepository> => ({
     findById: jest.fn(),
+    list: jest.fn(),
     updateAccount: jest.fn(),
     saveAccount: jest.fn(),
   });

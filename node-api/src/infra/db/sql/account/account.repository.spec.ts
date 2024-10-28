@@ -71,4 +71,21 @@ describe("AccountRepository Integration Tests", () => {
     const updateAccount = await accountRepository.updateAccount(account);
     expect(updateAccount).toBe(false);
   });
+  it("should return a list of accounts", async () => {
+    const account = new Account(100.0);
+    const savedAccount = await accountRepository.saveAccount(account);
+
+    const accounts = await accountRepository.list();
+
+    expect(accounts).toBeTruthy();
+    expect(accounts).toHaveLength(1);
+    expect(accounts[0].id).toBe(savedAccount.id);
+    expect(accounts[0].balance).toBe(savedAccount.balance);
+  });
+
+  it("should return null if there are no accounts", async () => {
+    const accounts = await accountRepository.list();
+
+    expect(accounts).toHaveLength(0);
+  });
 });

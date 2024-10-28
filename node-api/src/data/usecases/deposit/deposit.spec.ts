@@ -7,6 +7,7 @@ import { DepositUseCase } from "./deposit";
 const makeAccountRepository = function (): jest.Mocked<AccountRepository> {
   return {
     findById: jest.fn(),
+    list: jest.fn(),
     updateAccount: jest.fn(),
     saveAccount: jest.fn(),
   };

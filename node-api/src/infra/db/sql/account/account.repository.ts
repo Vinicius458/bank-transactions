@@ -15,6 +15,11 @@ export class DBAccountRepository implements AccountRepository {
     return accountEntity ? this.toDomain(accountEntity) : null;
   }
 
+  async list(): Promise<Array<Account>> {
+    const accountEntity = await this.ormRepository.find();
+    return accountEntity.map((account) => this.toDomain(account));
+  }
+
   async saveAccount(account: Account): Promise<Account> {
     const accountEntity = this.toEntity(account);
     const savedEntity = await this.ormRepository.save(accountEntity);

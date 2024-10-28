@@ -16,6 +16,11 @@ export class DBTransactionRepository implements TransactionRepository {
     return this.toDomain(savedEntity);
   }
 
+  async listTransaction(): Promise<Array<Transaction>> {
+    const transactionEntity = await this.repository.find();
+    return transactionEntity.map((transaction) => this.toDomain(transaction));
+  }
+
   private toEntity(transaction: Transaction): TransactionEntity {
     const transactionEntity = new TransactionEntity();
     transactionEntity.id = transaction.id;

@@ -5,6 +5,7 @@ import { WithdrawUseCase } from "./with-draw";
 
 const makeAccountRepository = (): jest.Mocked<AccountRepository> => ({
   findById: jest.fn(),
+  list: jest.fn(),
   updateAccount: jest.fn(),
   saveAccount: jest.fn(),
 });
