@@ -14,7 +14,6 @@ async function initializeApp() {
   );
   await trasactionConsumer.startTransactionConsumer();
 
-  console.log("Data Source has been initialized");
   process.on("SIGINT", async () => {
     await closeRabbitMQ();
     process.exit(0);
