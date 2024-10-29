@@ -19,18 +19,11 @@ export class TransferUseCase implements Transfer {
 
     targetAccount.credit(data.amount);
 
-    const sourceTransaction = new Transaction(
+    const transaction = new Transaction(
       data.accountId,
       data.amount,
-      TransactionType.WITHDRAW,
+      TransactionType.TRANSFER,
       data.targetAccountId
-    );
-
-    const targetTransaction = new Transaction(
-      data.targetAccountId,
-      data.amount,
-      TransactionType.DEPOSIT,
-      data.accountId
     );
 
     const successSource = await this.accountRepo.updateAccount(sourceAccount);
@@ -39,7 +32,6 @@ export class TransferUseCase implements Transfer {
     if (!successSource || !successTarget)
       throw new Error("Erro ao atualizar as contas");
 
-    await this.transactionRepo.saveTransaction(sourceTransaction);
-    await this.transactionRepo.saveTransaction(targetTransaction);
+    await this.transactionRepo.saveTransaction(transaction);
   }
 }

@@ -11,6 +11,7 @@ export class AddAcountController implements Controller {
 
       return ok({ id: createdAccount.accountId });
     } catch (error: any) {
+      console.log(error);
       return serverError(error);
     }
   }
