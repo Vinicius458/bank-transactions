@@ -17,6 +17,7 @@ const makeTransactionRepository =
   function (): jest.Mocked<TransactionRepository> {
     return {
       saveTransaction: jest.fn(),
+      listTransaction: jest.fn(),
     };
   };
 

@@ -13,6 +13,7 @@ describe("TransferUseCase", () => {
 
   const makeTransactionRepository = (): jest.Mocked<TransactionRepository> => ({
     saveTransaction: jest.fn(),
+    listTransaction: jest.fn(),
   });
 
   const makeFakeAccount = (id: string, balance: number) => {

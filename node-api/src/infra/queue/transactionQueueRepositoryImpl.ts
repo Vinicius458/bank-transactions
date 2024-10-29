@@ -7,27 +7,31 @@ export class TransactionQueueRepositoryImpl
   implements TransactionQueueRepository
 {
   private channel: Channel;
+  private queueName = "transactions";
 
-  constructor() {
-    this.init();
-  }
-
-  private async init() {
-    this.channel = await createRabbitMQChannel();
-    await this.channel.assertQueue("transactionQueue");
+  constructor(channel: Channel) {
+    this.channel = channel;
   }
 
   async enqueue(transaction: Transaction): Promise<void> {
+    await this.channel.assertQueue(this.queueName, { durable: true });
     const message = JSON.stringify(transaction);
-    this.channel.sendToQueue("transactionQueue", Buffer.from(message));
+    this.channel.sendToQueue(this.queueName, Buffer.from(message));
   }
 
   async consume(
     callback: (transaction: Transaction) => Promise<void>
   ): Promise<void> {
-    this.channel.consume("transactionQueue", async (msg) => {
+    await this.channel.assertQueue(this.queueName, { durable: true });
+    this.channel.consume(this.queueName, async (msg) => {
       if (msg) {
-        const transaction: Transaction = JSON.parse(msg.content.toString());
+        const transactionData: Transaction = JSON.parse(msg.content.toString());
+        const transaction = new Transaction(
+          transactionData.accountId,
+          transactionData.amount,
+          transactionData.type,
+          transactionData.targetAccountId
+        );
         try {
           await callback(transaction);
           this.channel.ack(msg);

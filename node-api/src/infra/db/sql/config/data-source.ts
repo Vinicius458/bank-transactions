@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   password: "123",
   database: "bank", // banco de dados para teste
   entities: [Account, Transaction],
-  synchronize: true, // cria as tabelas automaticamente no banco de teste
+  synchronize: false, // cria as tabelas automaticamente no banco de teste
   migrations: [
     CreateAccountTable_ts1730120866869,
     CreateTransactionTable_ts1730121190957,
@@ -23,6 +23,9 @@ export const AppDataSource = new DataSource({
 export const initializeTestDataSource = async () => {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
+    console.log("Data Source has been initialized!");
+  } else {
+    console.log("Data Source is already initialized.");
   }
   return AppDataSource;
 };

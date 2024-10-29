@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity("accounts")
 export class Account {
@@ -8,6 +8,6 @@ export class Account {
   @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
   balance: number;
 
-  @Column()
+  @Column({ type: "int" })
   version: number;
 }

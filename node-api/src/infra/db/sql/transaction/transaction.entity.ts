@@ -5,16 +5,16 @@ export class Transaction {
   @PrimaryColumn("uuid")
   id: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   accountId: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   targetAccountId?: string;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
   amount: number;
 
-  @Column()
+  @Column({ type: "varchar" })
   type: string;
 
   @CreateDateColumn()
