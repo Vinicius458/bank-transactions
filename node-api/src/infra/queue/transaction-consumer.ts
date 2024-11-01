@@ -1,10 +1,11 @@
 import { ProcessTransaction } from "@/data/usecases";
 import { TransactionQueueRepository } from "@/data/protocols/queue/transaction-queue-repository";
-import { TransactionQueueRepositoryImpl } from "@/infra/queue/transactionQueueRepositoryImpl";
 import { Transaction, TransactionType } from "@/domain/entities";
 import { makeDeposit, makeTransfer, makeWithdraw } from "@/main/factories";
 
 export class TransactionConsumer {
+  private readonly maxAttempts = 3; // Limite de tentativas para reprocessamento
+
   constructor(private transactionQueueRepo: TransactionQueueRepository) {}
 
   async startTransactionConsumer() {

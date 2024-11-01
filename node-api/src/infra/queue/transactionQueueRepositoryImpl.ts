@@ -1,13 +1,13 @@
-import { Channel } from "amqplib";
+import { Channel, ConsumeMessage } from "amqplib";
 import { Transaction } from "@/domain/entities";
 import { TransactionQueueRepository } from "@/data/protocols/queue/transaction-queue-repository";
-import { createRabbitMQChannel } from "./rabbitMQConfig";
 
 export class TransactionQueueRepositoryImpl
   implements TransactionQueueRepository
 {
   private channel: Channel;
-  private queueName = "transactions";
+  private readonly queueName = "transactions";
+  private readonly queueNameDLQ = `${this.queueName}-DLQ`;
 
   constructor(channel: Channel) {
     this.channel = channel;
@@ -20,10 +20,12 @@ export class TransactionQueueRepositoryImpl
   }
 
   async consume(
-    callback: (transaction: Transaction) => Promise<void>
+    callback: (transaction: Transaction) => Promise<void>,
+    maxAttempts: number = 3
   ): Promise<void> {
     await this.channel.assertQueue(this.queueName, { durable: true });
-    this.channel.consume(this.queueName, async (msg) => {
+    await this.channel.assertQueue(this.queueNameDLQ, { durable: true });
+    this.channel.consume(this.queueName, async (msg: ConsumeMessage | null) => {
       if (msg) {
         const transactionData: Transaction = JSON.parse(msg.content.toString());
         const transaction = new Transaction(
@@ -32,12 +34,28 @@ export class TransactionQueueRepositoryImpl
           transactionData.type,
           transactionData.targetAccountId
         );
+        const attemptCount = (msg.properties.headers!["x-attempts"] || 0) + 1;
+
         try {
           await callback(transaction);
           this.channel.ack(msg);
         } catch (error) {
-          console.error("Erro ao processar transação:", error);
-          this.channel.nack(msg, false, true);
+          console.error(
+            `Erro ao processar transação (tentativa ${attemptCount}):`,
+            error
+          );
+
+          if (attemptCount < maxAttempts) {
+            this.channel.sendToQueue(this.queueName, msg.content, {
+              headers: { "x-attempts": attemptCount },
+            });
+            this.channel.ack(msg);
+          } else {
+            this.channel.sendToQueue(this.queueNameDLQ, msg.content, {
+              persistent: true,
+            });
+            this.channel.ack(msg);
+          }
         }
       }
     });

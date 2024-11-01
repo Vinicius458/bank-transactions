@@ -1,4 +1,3 @@
-import { TransactionQueueRepositoryImpl } from "@/infra/queue/transactionQueueRepositoryImpl";
 import { TransactionController } from "@/presentation/controllers/transaction-controller";
 import { Controller } from "@/presentation/protocols";
 import { makeTransactionValidation } from "./transaction-validation-factory";

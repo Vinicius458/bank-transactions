@@ -1,6 +1,6 @@
 import { setupApp } from "./config/app";
+import "dotenv/config";
 import env from "@/main/config/env";
-import "reflect-metadata";
 import { TransactionConsumer } from "@/infra/queue/transaction-consumer";
 import { makeTransactionQueue } from "./factories/queue/transactionQueueRepository-factory";
 import { closeRabbitMQ } from "@/infra/queue/rabbitMQConfig";

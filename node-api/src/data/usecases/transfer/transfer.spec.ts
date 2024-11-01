@@ -78,19 +78,13 @@ describe("TransferUseCase", () => {
     expect(targetAccount.credit).toHaveBeenCalledWith(100);
     expect(accountRepo.updateAccount).toHaveBeenCalledWith(sourceAccount);
     expect(accountRepo.updateAccount).toHaveBeenCalledWith(targetAccount);
-    expect(transactionRepo.saveTransaction).toHaveBeenCalledTimes(2);
+    expect(transactionRepo.saveTransaction).toHaveBeenCalledTimes(1);
     expect(transactionRepo.saveTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         accountId: "1",
         amount: 100,
-        type: TransactionType.WITHDRAW,
-      })
-    );
-    expect(transactionRepo.saveTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        accountId: "2",
-        amount: 100,
-        type: TransactionType.DEPOSIT,
+        type: TransactionType.TRANSFER,
+        targetAccountId: "2",
       })
     );
   });

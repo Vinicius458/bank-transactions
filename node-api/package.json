@@ -2,16 +2,19 @@
   "name": "bank-transactions",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start:dev": "tsx src/main/server.ts",
     "start:watch": "tsx watch src/main/server.ts",
     "start:dist": "npm run build && node dist/main/server.js",
-    "build": "tsup src",
+    "build": "rimraf dist && (tsc --build && tsc-alias)",
     "test": "jest",
     "test:watch": "npm run test --watch",
     "test:staged": "npm run test --findRelatedTests",
     "test:ci": "npm run test --coverage",
-    "husky:prepare": "husky init"
+    "husky:prepare": "husky init",
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/infra/db/sql/config/data-source.ts",
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d src/infra/db/sql/config/data-source.ts"
   },
   "keywords": [],
   "author": "",
@@ -28,8 +31,8 @@
     "mysql2": "^3.11.3",
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.20",
     "uuid": "^11.0.0",
+    "typeorm": "^0.3.20",
     "validator": "^13.12.0"
   },
   "devDependencies": {
@@ -52,8 +55,10 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "tsup": "^8.3.0",
     "tsx": "^4.19.1",
+    "typeorm-ts-node-commonjs": "^0.3.20",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.11.0"
   }

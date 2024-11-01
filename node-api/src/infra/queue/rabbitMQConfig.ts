@@ -1,4 +1,5 @@
 import { Channel, Connection, connect } from "amqplib";
+import env from "@/main/config/env";
 
 let connection: Connection | null = null;
 let channel: Channel | null = null;
@@ -9,7 +10,7 @@ export async function createRabbitMQChannel(): Promise<Channel> {
   }
 
   if (!connection) {
-    connection = await connect("amqp://localhost");
+    connection = await connect(env.rabbitUrl);
   }
 
   channel = await connection.createChannel();

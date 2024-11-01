@@ -7,6 +7,7 @@ export enum TransactionType {
 
 export class Transaction {
   public id: string;
+  public attempt: number;
   constructor(
     public readonly accountId: string,
     public readonly amount: number,
